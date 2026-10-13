@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T-REX TCG, carte Pokémon da collezione</title>
+  <meta name="description" content="Box sigillati, carte singole verificate e accessori per collezionisti di carte Pokémon.">
+  <meta name="theme-color" content="#0a1a46">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="T-REX TCG, carte Pokémon da collezione">
+  <meta property="og:description" content="Box sigillati, carte singole verificate e accessori per collezionisti.">
+  <meta property="og:image" content="assets/img/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg?v=24" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/site.css?v=24">
+  <script>
+    // Decide prima del primo paint se usare la scena 3D.
+    (function () {
+      var d = document.documentElement, ok = false;
+      try { var c = document.createElement('canvas'); ok = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      d.classList.add(ok && !reduce ? 'has-3d' : 'no-3d');
+      if (reduce) d.classList.add('reduce');
+    })();
+  </script>
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+  <script defer src="vendor/gsap.min.js"></script>
+  <script defer src="vendor/ScrollTrigger.min.js"></script>
+  <script defer src="vendor/Flip.min.js"></script>
+  <script defer src="vendor/SplitText.min.js"></script>
+  <script type="module" src="js/main.js?v=24"></script>
+</head>
+<body>
+  <a class="skip" href="#catalogo">Vai al catalogo</a>
+
+  <!-- icone dei tipi (disegni originali) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="t-fire" viewBox="0 0 24 24"><path d="M12.6 2.2c.4 3-1.3 4.6-2.8 6.1C8.3 9.8 7 11.2 7 13.7c0 1.4.6 2.6 1.5 3.4-.2-1.9.7-3.1 1.9-4.2.6 1.6 2 2.3 2.4 4.2.3 1.2 0 2.4-.7 3.2 3.1-.6 5.4-3.2 5.4-6.4 0-3.9-2.6-5.4-3.4-8.6-.3 1.1-.9 2-1.6 2.6.5-2.3-.1-4.4.1-5.7z" fill="currentColor"/></symbol>
+    <symbol id="t-ghost" viewBox="0 0 24 24"><path d="M12 2.5c-4.1 0-7 3.1-7 7.3v10.7l2.3-1.6 2.3 1.6 2.4-1.6 2.4 1.6 2.3-1.6 2.3 1.6V9.8c0-4.2-2.9-7.3-7-7.3z" fill="currentColor"/><ellipse cx="9.4" cy="10.2" rx="1.3" ry="1.8" fill="#0a1a46"/><ellipse cx="14.6" cy="10.2" rx="1.3" ry="1.8" fill="#0a1a46"/></symbol>
+    <symbol id="t-dragon" viewBox="0 0 24 24"><path d="M3 15.5c3.7-.3 6.3-1.9 8.4-4.6C13.1 8.7 15 6.6 21 5.5c-1.8 1.4-2.7 2.8-3.1 4.3 1.3-.4 2.4-.4 3.1-.2-2.1 1.3-3.3 3-4 5-1.2 3.4-4.4 5.5-8.7 5.4 1.7-.8 2.8-1.8 3.3-3.1-2.6.6-5.1 0-8.6-1.4z" fill="currentColor"/></symbol>
+    <symbol id="t-psychic" viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.4" fill="currentColor"/><circle cx="13.2" cy="10.8" r="1" fill="#fff"/></symbol>
+    <symbol id="t-electric" viewBox="0 0 24 24"><path d="M13.5 2 5 13.5h6L9.5 22 19 9.8h-6.2z" fill="currentColor"/></symbol>
+    <symbol id="t-fairy" viewBox="0 0 24 24"><path d="M12 2c.8 5 2.9 7.2 8 8-5.1.8-7.2 3-8 8-.8-5-2.9-7.2-8-8 5.1-.8 7.2-3 8-8z" fill="currentColor"/><circle cx="19" cy="18.5" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="t-normal" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="3" fill="currentColor"/></symbol>
+  </svg>
+
+  <div class="loader" role="dialog" aria-label="Caricamento">
+    <div class="loader__mark"><img src="assets/trex-mark.svg?v=24" width="84" height="84" alt="T-Rex TCG"></div>
+    <p class="loader__txt">Preparo la busta <span data-load-pct>0</span>%</p>
+    <div class="loader__gate" data-gate hidden>
+      <p>L’apertura ha un suono. Meglio con le cuffie.</p>
+      <div class="loader__btns">
+        <button class="btn btn--yellow" type="button" data-enter="on">Entra con il suono</button>
+        <button class="btn btn--ghost" type="button" data-enter="off">Entra in silenzio</button>
+      </div>
+    </div>
+    <span class="loader__bar"></span>
+  </div>
+
+  <header class="bar" data-bar>
+    <a class="brand" href="#top" aria-label="T-REX TCG, torna all’inizio">
+      <img class="brand__logo" src="assets/trex-mark.svg?v=24" width="40" height="40" alt="">
+      <span>T-REX TCG</span>
+    </a>
+    <nav class="bar__nav" aria-label="Reparti">
+      <a href="#catalogo" data-filter-link="sealed">Box e buste</a>
+      <a href="#catalogo" data-filter-link="single">Carte singole</a>
+      <a href="#catalogo" data-filter-link="acc">Accessori</a>
+      <a href="#trenta">30 anni</a>
+      <a href="#contatti">Contatti</a>
+    </nav>
+    <div class="bar__tools">
+      <button class="icon-btn" type="button" data-sound aria-pressed="false" title="Suoni">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span class="sr">Suoni</span>
+      </button>
+      <button class="cart-btn" type="button" data-cart-open aria-label="Apri il carrello">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.2l2.3 11h10.8L20.5 7H7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="9.5" cy="19.5" r="1.5" fill="currentColor"/><circle cx="17" cy="19.5" r="1.5" fill="currentColor"/></svg>
+        <span>Carrello</span>
+        <b class="cart-count" data-cart-count>0</b>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ———————————————— HERO 3D -->
+    <section class="hero" id="top" aria-label="Apertura della busta">
+      <canvas class="hero__gl" aria-hidden="true"></canvas>
+      <div class="hero__glow" aria-hidden="true"></div>
+
+      <div class="hero__intro" data-hero-intro>
+        <h1 class="display hero__title">Carte Pokémon, box e accessori.</h1>
+        <p class="hero__lede">Trova la carta che ti manca o scegli il prossimo box da aprire.</p>
+        <div class="hero__cta">
+          <a class="btn btn--yellow" href="#catalogo">Sfoglia il catalogo</a>
+          <span class="hero__hint"><i aria-hidden="true"></i>Trascina la busta o scorri per aprirla</span>
+        </div>
+      </div>
+
+      <ol class="hero__rail" data-rail aria-hidden="true"></ol>
+      <div class="hero__chapters" data-chapters></div>
+
+      <div class="hero__outro" data-hero-outro>
+        <h2 class="display">Quattro carte. In catalogo ce ne sono altre.</h2>
+        <a class="btn btn--yellow" href="#catalogo">Vai al catalogo</a>
+      </div>
+
+      <button class="hero__skip" type="button" data-skip>Salta l’apertura <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l6 5-6 5zM10 3h2v10h-2z" fill="currentColor"/></svg></button>
+
+      <!-- versione senza 3D / movimento ridotto -->
+      <div class="hero__static" data-static></div>
+    </section>
+
+    <!-- ———————————————— NASTRO DEI SET -->
+    <div class="sets" aria-label="Set disponibili in negozio">
+      <div class="sets__track" data-sets></div>
+    </div>
+
+    <!-- ———————————————— REPARTI -->
+    <section class="depts" id="reparti" aria-labelledby="depts-title">
+      <div class="wrap">
+        <h2 class="display depts__title" id="depts-title" data-split>Da dove vuoi iniziare?</h2>
+        <ul class="depts__list" data-depts></ul>
+      </div>
+    </section>
+
+    <!-- ———————————————— BUSTA DEL GIORNO -->
+    <section class="opener" id="busta" aria-labelledby="opener-title" hidden>
+      <div class="wrap opener__grid">
+        <div class="opener__copy">
+          <h2 class="display" id="opener-title" data-split>Apri la busta del giorno.</h2>
+          <p class="opener__lede">Una busta virtuale gratuita al giorno. Ogni carta holo che trovi ha un codice sconto sulle Elite Trainer Box: più è rara, più vale.</p>
+          <table class="odds">
+            <caption class="sr">Rarità, sconto e probabilità</caption>
+            <thead><tr><th scope="col">Carta holo</th><th scope="col">Sconto</th><th scope="col">Probabilità</th></tr></thead>
+            <tbody data-odds></tbody>
+          </table>
+          <div class="wallet" data-wallet aria-live="polite"></div>
+          <p class="opener__fine">Promozione dimostrativa. I codici valgono 7 giorni e se ne usa uno per ordine.</p>
+        </div>
+        <div class="opener__stage" data-stage>
+          <div class="pk" data-pk data-cursor="Trascina la striscia">
+            <div class="deck" data-deck role="button" tabindex="0" aria-label="Mazzo di carte"></div>
+            <div class="pk__body"><img src="assets/img/pack-front.webp?v=24" alt="Busta T-REX TCG"></div>
+            <div class="pk__strip" data-strip aria-hidden="true"></div>
+          </div>
+          <ol class="pulls" data-pulls aria-label="Carte trovate"><li></li><li></li><li></li><li></li><li></li></ol>
+          <div class="opener__ui">
+            <button class="btn btn--yellow" type="button" data-open-pack>Apri la busta</button>
+            <p class="opener__hint" data-pack-hint>oppure afferra la striscia in alto e tira</p>
+          </div>
+          <div class="result" data-result hidden aria-live="polite"></div>
+          <canvas class="confetti" data-confetti aria-hidden="true"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ———————————————— CATALOGO -->
+    <section class="shop" id="catalogo" aria-labelledby="shop-title">
+      <div class="wrap">
+        <div class="shop__head">
+          <h2 class="display" id="shop-title" data-split>Catalogo</h2>
+          <p class="shop__note">Prezzi allineati ai riferimenti di mercato del 13 ottobre 2026. Catalogo dimostrativo.</p>
+        </div>
+        <div class="shop__controls">
+          <div class="tabs" role="tablist" aria-label="Filtra per reparto" data-tabs>
+            <button role="tab" aria-selected="true" data-filter="all">Tutto</button>
+            <button role="tab" aria-selected="false" data-filter="sealed">Box e buste</button>
+            <button role="tab" aria-selected="false" data-filter="single">Carte singole</button>
+            <button role="tab" aria-selected="false" data-filter="acc">Accessori</button>
+          </div>
+          <label class="search">
+            <span class="sr">Cerca nel catalogo</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <input type="search" placeholder="Cerca per carta o set" aria-keyshortcuts="/" data-search autocomplete="off">
+          </label>
+          <label class="sort">
+            <span class="sr">Ordina</span>
+            <select data-sort>
+              <option value="featured">In evidenza</option>
+              <option value="asc">Prezzo, dal più basso</option>
+              <option value="desc">Prezzo, dal più alto</option>
+            </select>
+          </label>
+        </div>
+        <p class="shop__count" aria-live="polite" data-count></p>
+        <ul class="grid" data-grid></ul>
+        <div class="empty" data-empty hidden>
+          <p>Nessun prodotto trovato per <b data-empty-q></b>. Prova con il nome di una carta o di un set, per esempio “151”.</p>
+          <button class="btn btn--ghost" type="button" data-reset>Mostra tutto il catalogo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ———————————————— 30 ANNI -->
+    <section class="thirty" id="trenta" aria-labelledby="thirty-title">
+      <div class="thirty__pin">
+        <div class="thirty__world" aria-hidden="true">
+          <img src="assets/img/anniversary-anime.png" alt="" width="1672" height="941" loading="lazy">
+          <div class="thirty__sunlight"></div>
+          <div class="thirty__motes"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <button class="thirty__motion" type="button" aria-label="Metti in pausa lo sfondo animato" aria-pressed="false" data-thirty-motion><span aria-hidden="true">Ⅱ</span></button>
+        <div class="thirty__intro">
+          <div class="thirty__copy">
+            <div class="thirty__edition">
+              <img class="thirty__logo" src="assets/img/pokemon-30-logo.png?v=24" width="203" height="150" alt="Pokémon, 30° anniversario" loading="lazy">
+              <p class="thirty__eyebrow">1996 — 2026<span>30° anniversario</span></p>
+            </div>
+            <h2 class="display" id="thirty-title">Trent’anni <span>di carte.</span></h2>
+            <p class="thirty__lede">Box, buste e collezioni speciali della <strong>30th Celebration</strong>. Tutto sigillato.</p>
+          </div>
+        </div>
+        <ul class="thirty__track" data-thirty></ul>
+      </div>
+    </section>
+
+    <!-- ———————————————— SPEDIZIONE -->
+    <section class="ship" aria-labelledby="ship-title">
+      <div class="wrap ship__grid">
+        <figure class="ship__stage" aria-label="La carta e i quattro strati di protezione">
+          <p class="ship__eyebrow">La tua carta. Quattro protezioni.</p>
+          <div class="ship__diagram" aria-hidden="true">
+            <div class="stack" data-stack>
+              <div class="layer layer--box" data-layer="box" style="--level:0"><i class="layer__anchor"></i></div>
+              <div class="layer layer--bag" data-layer="bag" style="--level:1"><i class="layer__anchor"></i></div>
+              <div class="layer layer--top" data-layer="top" style="--level:2"><i class="layer__anchor"></i></div>
+              <div class="layer layer--sleeve" data-layer="sleeve" style="--level:3"><i class="layer__anchor"></i></div>
+              <div class="layer layer--card" data-layer="card" style="--level:4"><img src="assets/img/card-charizard.webp" alt=""><i class="layer__anchor"></i></div>
+            </div>
+          </div>
+          <svg class="ship__leaders" aria-hidden="true" data-ship-leaders></svg>
+          <figcaption class="ship__callouts">
+            <div data-layer-label="card"><b>01</b><p><strong>La tua carta</strong><span>Il pezzo da proteggere</span></p></div>
+            <div data-layer-label="sleeve"><b>02</b><p><strong>Penny sleeve</strong><span>Contro i graffi</span></p></div>
+            <div data-layer-label="top"><b>03</b><p><strong>Toploader 35 pt</strong><span>Supporto rigido</span></p></div>
+            <div data-layer-label="bag"><b>04</b><p><strong>Team bag</strong><span>Busta sigillata</span></p></div>
+            <div data-layer-label="box"><b>05</b><p><strong>Scatola rigida</strong><span>Protezione esterna</span></p></div>
+          </figcaption>
+        </figure>
+        <div class="ship__copy">
+          <h2 class="display" id="ship-title" data-split>Come spediamo una carta da mille euro.</h2>
+          <ol class="ship__steps">
+            <li><h3>Foto prima di pagare</h3><p>Ogni singola sopra i 50 € la fotografiamo fronte e retro e ti mandiamo gli scatti prima della spedizione.</p></li>
+            <li><h3>Quattro protezioni, un solo imballo</h3><p>Penny sleeve, toploader, team bag e scatola rigida. Mai una busta imbottita da sola.</p></li>
+            <li><h3>Assicurata per il valore pieno</h3><p>Spedizione tracciata e assicurata. Gratis sopra i 99 €.</p></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="night-campaign" id="notturno" data-gengar-state="idle">
+      <div class="night-landscape">
+        <img src="assets/img/world-night.webp?v=24" alt="Gengar in un giardino notturno illuminato da lanterne" width="1672" height="941" loading="lazy">
+      </div>
+      <button class="night-wake" type="button" aria-label="Illumina gli occhi di Gengar" hidden></button>
+    <div class="wrap foot__grid">
+      <form class="news" data-news>
+        <h2 class="display">Avvisami quando arriva un nuovo set.</h2>
+        <div class="news__row">
+          <label class="sr" for="news-email">Email</label>
+          <input id="news-email" type="email" required placeholder="nome@email.it" autocomplete="email">
+          <button class="btn btn--yellow" type="submit">Iscrivimi</button>
+        </div>
+        <p class="news__msg" data-news-msg aria-live="polite"></p>
+      </form>
+      <div class="foot__info" id="contatti">
+        <div class="foot__contact">
+          <h2>Contatti</h2>
+          <p class="foot__name"><img class="foot__logo" src="assets/trex-mark.svg?v=24" width="32" height="32" alt="" loading="lazy">T-Rex TCG</p>
+          <a href="mailto:trextcgsrl@gmail.com">trextcgsrl@gmail.com</a>
+          <address><span class="foot__label">Sede</span>Via della Bufalotta 29<br>00139 Roma (RM), Italia</address>
+          <a class="foot__map" href="https://www.google.com/maps/search/?api=1&amp;query=Via+della+Bufalotta+29,+00139+Roma,+Italia" target="_blank" rel="noopener">Indicazioni <span aria-hidden="true">↗</span></a>
+        </div>
+        <nav class="foot__links" aria-label="Link utili">
+          <a href="#catalogo">Catalogo</a>
+          <a href="#trenta">30th Celebration</a>
+          <a href="https://www.t-rextcg.com/pages/contact" target="_blank" rel="noopener">Contatti sul sito ufficiale <span aria-hidden="true">↗</span></a>
+          <a href="#top">Torna all’inizio</a>
+        </nav>
+      </div>
+    </div>
+        <p class="foot__legal">Sito dimostrativo. Pokémon e i nomi correlati sono marchi di Nintendo, Creatures e GAME FREAK. T-REX TCG è un rivenditore indipendente, non affiliato.</p>
+    </div>
+  </footer>
+
+  <!-- ———————————————— SCHEDA PRODOTTO -->
+  <dialog class="sheet" data-sheet aria-labelledby="sheet-title">
+    <button class="sheet__close icon-btn" type="button" data-close aria-label="Chiudi la scheda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="sheet__media" data-sheet-media></div>
+    <div class="sheet__info" data-sheet-info></div>
+  </dialog>
+
+  <!-- ———————————————— CARRELLO -->
+  <dialog class="cart" data-cart aria-labelledby="cart-title">
+    <div class="cart__head">
+      <h2 id="cart-title">Carrello</h2>
+      <button class="icon-btn" type="button" data-close aria-label="Chiudi il carrello">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="cart__ship" data-ship></div>
+    <ul class="cart__list" data-cart-list></ul>
+    <div class="upsell" data-upsell hidden></div>
+    <div class="cart__empty" data-cart-empty>
+      <p>Il carrello è vuoto.</p>
+      <a class="btn btn--ghost" href="#catalogo" data-close>Sfoglia il catalogo</a>
+    </div>
+    <div class="cart__foot">
+      <p class="cart__disc" data-cart-disc hidden></p>
+      <p class="cart__total"><span>Totale</span><b data-cart-total>0,00 €</b></p>
+      <button class="btn btn--yellow btn--wide" type="button" data-checkout>Vai al pagamento</button>
+    </div>
+  </dialog>
+
+  <div class="toast" role="status" aria-live="polite" data-toast></div>
+</body>
+</html>

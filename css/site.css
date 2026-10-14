@@ -547,7 +547,7 @@ a { color: inherit; }
 .night-landscape { position: absolute; inset: 0; }
 .night-landscape img, .night-landscape canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
 .night-landscape img { object-fit: cover; object-position: 50% 47%; }
-.night-landscape.art-ready img { opacity: 0; }
+.night-landscape.art-ready img { opacity: 1; }
 .night-landscape canvas { pointer-events: none; }
 .night-wake { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; border: 0; padding: 0; border-radius: 0; background: transparent; cursor: pointer; touch-action: pan-y; }
 .night-wake:focus-visible { outline: 2px solid #e0cdf9; outline-offset: -8px; }
@@ -836,4 +836,62 @@ dialog .cursor { display: none; }
   .thirty__intro { margin-bottom: 40px; }
   .thirty__track { flex-wrap: wrap; height: auto; }
   .thirty__item { height: 440px; }
+}
+
+
+/* Mobile clarity: stable artwork, separate product actions, native swipe. */
+.thirty__item { min-width: 250px; }
+.thirty__card { grid-template-rows: minmax(100px, 1fr) auto; }
+.thirty__card figure { aspect-ratio: auto; }
+.thirty__card img { max-height: 100%; }
+.thirty__row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+.thirty__row > div { display: contents; }
+.thirty__row h3 { grid-column: 1 / -1; min-height: 2.3em; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.thirty__row p { margin: 0; font-size: 14px; }
+.thirty__row .tile__add { width: auto; min-height: 44px; padding: 0 15px; align-self: end; }
+.thirty__swipe { display: none; }
+
+@media (max-width: 720px), (max-height: 700px) {
+  .thirty__pin { height: auto; display: block; padding: 72px 0 32px; overflow: hidden; }
+  .thirty__intro { min-height: 0; padding-top: 0; margin-bottom: 24px; }
+  .thirty__swipe { position: relative; z-index: 2; display: block; padding: 0 var(--gutter); margin: 0 0 12px; color: rgba(255,255,255,.8); font-size: 12px; }
+  .thirty__track { height: auto; padding-block: 2px 24px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); will-change: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.45) transparent; }
+  .thirty__item { width: clamp(250px, 72vw, 300px); height: 390px; min-width: 0; max-width: none; aspect-ratio: auto; scroll-snap-align: start; }
+  .thirty__card { padding: 12px; gap: 14px; grid-template-rows: minmax(0, 1fr) auto; box-shadow: 0 8px 24px rgba(0,0,0,.16); }
+  .thirty__motion { top: 20px; width: 44px; height: 44px; }
+}
+@media (max-width: 720px) {
+  .bar__nav + .bar__tools { margin-left: auto; }
+  .bar.is-solid { background: rgba(10,26,70,.96); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .bar.is-light { background: rgba(238,242,249,.97); }
+  .hero__intro { top: calc(var(--bar-h) + 54px); }
+  .hero__cta { gap: 12px; }
+  .hero__hint { font-size: 12px; gap: 8px; }
+  .hero__hint i { width: 16px; height: 24px; }
+  .hero__skip { top: calc(var(--bar-h) + 6px); min-height: 42px; backdrop-filter: none; }
+  .hero__lede { display: block; margin: 12px 0 16px; }
+  .thirty__intro { padding-top: 80px; }
+  .thirty__world img { height: 450px; }
+  .thirty__world::after { background: linear-gradient(180deg, transparent 70px, rgba(10,39,64,.7) 200px, #143f64 450px); }
+  .thirty__card img { filter: drop-shadow(0 8px 10px rgba(80,50,0,.22)); }
+  .thirty__row h3 { font-size: 18px; }
+  .tile__add { min-height: 44px; }
+  .search input, .sort select, .news__row input { font-size: 16px; }
+  .shop__controls { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .no-3d .hero__intro { top: auto; }
+}
+@media (max-height: 700px) and (max-width: 720px) {
+  .hero__title { font-size: clamp(2rem, 9vw, 2.6rem); }
+  .hero__lede { font-size: 14px; margin: 10px 0 12px; }
+  .hero__hint { display: none; }
+  .thirty__intro { padding-top: 50px; }
+}
+@media (hover: none), (pointer: coarse) {
+  .tile__media { perspective: none; transform: none !important; }
+  .tile__media img, .tile:hover .tile__media img { transform: none !important; }
+  .tile:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thirty__swipe { display: none; }
 }

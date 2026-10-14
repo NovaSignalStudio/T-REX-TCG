@@ -460,7 +460,10 @@ function packGeometry(y0, y1, back = false) {
 // ————————————————————————————————————————— scena
 export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onReady, onProgress, onChapter, scroller }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  // Keep card artwork sharp on Retina phones. Adapt decorative effects below,
+  // never permanently replace the scene with a 1x canvas after a loading stall.
+  const pixelRatio = () => Math.min(window.devicePixelRatio || 1, document.documentElement.clientWidth <= 720 ? 2 : 1.75);
+  renderer.setPixelRatio(pixelRatio());
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
@@ -473,7 +476,8 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
   ]).catch(() => {});
 
   const loader = new THREE.TextureLoader();
-  const loadTex = (url) => new Promise((res, rej) => loader.load(url, (t) => { t.anisotropy = 8; t.generateMipmaps = true; res(t); }, undefined, rej));
+  const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  const loadTex = (url) => new Promise((res, rej) => loader.load(url, (t) => { t.anisotropy = anisotropy; t.generateMipmaps = true; res(t); }, undefined, rej));
   let done = 0;
   onProgress?.(.15);
   const cardTex = await Promise.all(cards.map((c) => loadTex(c.img).then((t) => { done++; onProgress?.(.15 + .8 * done / cards.length); return t; })));
@@ -483,6 +487,7 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
   const packFrontTex = canvasTex(1024, 1640, (c, w, h) => drawPackFront(c, w, h, { charizard: pChar, gengar: pGen, pikachu: pPika, logo: brandLogo }));
   const packBackTex = canvasTex(512, 820, drawPackBack);
   const backTex = canvasTex(512, 716, (c, w, h) => drawCardBack(c, w, h, brandLogo));
+  [packFrontTex, packBackTex, backTex].forEach((texture) => { texture.anisotropy = anisotropy; });
 
   // rig = tutto ciò che si inclina col puntatore
   const rig = new THREE.Group();
@@ -599,9 +604,17 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
   const rail = section.querySelector('[data-rail]');
   const railDots = rail ? [...rail.querySelectorAll('li')] : [];
   const barEl = document.querySelector('.bar');
+  // A pinned element may retain its previous inline dimensions during refresh.
+  // Measure the same small viewport unit as .hero outside the pin instead.
+  const viewportProbe = document.createElement('div');
+  viewportProbe.setAttribute('aria-hidden', 'true');
+  viewportProbe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none;contain:strict;';
+  document.body.append(viewportProbe);
   const L = {};
   function layout() {
-    const w = section.clientWidth, h = section.clientHeight;
+    const w = document.documentElement.clientWidth, h = viewportProbe.clientHeight || window.innerHeight;
+    if (!w || !h) return;
+    if (renderer.getPixelRatio() !== pixelRatio()) renderer.setPixelRatio(pixelRatio());
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     const portrait = w / h < .9;
@@ -629,9 +642,10 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
       return;
     }
     // verticale: busta, carta e griglia finale occupano solo lo spazio lasciato libero dai testi
-    const iB = intro.offsetTop + intro.offsetHeight + 14;
-    const freeP = Math.max(120, h - 12 - iB);
-    const introScale = Math.min(1, (freeP * k) / (PACK_H * 1.02));
+    const iB = intro.offsetTop + intro.offsetHeight + 16;
+    const freeP = Math.max(1, h - 24 - iB);
+    // Reserve the actual space below the CTA, including the tilted foil edges.
+    const introScale = Math.min(1, (freeP * k) / (PACK_H * 1.1));
     const chH = Math.max(...chapters.map((c) => c.offsetHeight));
     const cTop = barH + 14, cBot = h - chH - 28 - 14;
     const freeC = Math.max(140, cBot - cTop);
@@ -672,7 +686,9 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
       trigger: section, start: 'top top',
       end: () => '+=' + Math.round(window.innerHeight * (L.portrait ? 5.2 : 6)),
       pin: true, scrub: 1, invalidateOnRefresh: true, refreshPriority: 2,
-      onRefresh: layout,
+      // Function-based fromTo values must see the new layout before refresh
+      // invalidates their cached starts, especially after rotating a phone.
+      onRefreshInit: layout,
       onUpdate: (self) => {
         const v = Math.abs(self.getVelocity());
         if (tl.time() < 1.05 && v > 60) sfx?.('crinkle', Math.min(1, v / 2200));
@@ -877,32 +893,43 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
     return !document.hidden && (!st || window.scrollY < st.end + window.innerHeight);
   };
 
-  // qualità adattiva: su macchine lente scende a pixel ratio 1, su quelle lentissime spegne gli effetti più costosi
-  let frames = 0, acc = 0, last = performance.now(), stage = 0;
-  function tune() {
-    const now = performance.now(), dt = now - last; last = now;
-    if (stage > 1 || document.hidden || dt > 250) return;
-    frames++;
-    if (frames > 12) acc += dt;
-    if (frames === 72) {
-      const avg = acc / 60;
-      frames = 0; acc = 0;
-      if (avg > 22 && renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); layout(); stage = 1; return; }
-      if (avg > 30) {
-        rays.visible = false; packRays.visible = false;
-        dust.geometry.setDrawRange(0, 60);
-        cardFx.forEach((f) => f.geometry.setDrawRange(0, Math.floor(f.geometry.attributes.position.count / 2)));
-        stage = 2; return;
-      }
-      stage = 2;
+  // Shed decorative overdraw before detail. Sampling starts after compilation
+  // and resumes cleanly after leaving the scene; sustained recovery restores FX.
+  let frames = 0, acc = 0, last = 0, stage = 0, slowWindows = 0, fastWindows = 0;
+  let warmUntil = performance.now() + 2000;
+  const setEffectBudget = () => {
+    const ratio = stage === 2 ? .3 : stage === 1 ? .6 : 1;
+    [dust, ...cardFx].forEach((effect) => {
+      effect.geometry.setDrawRange(0, Math.ceil(effect.geometry.attributes.position.count * ratio));
+    });
+  };
+  function tune(now) {
+    const dt = last ? now - last : 0;
+    last = now;
+    if (!dt || dt > 250 || now < warmUntil) { frames = 0; acc = 0; return; }
+    acc += dt;
+    if (++frames < 90) return;
+    const avg = acc / frames;
+    frames = 0; acc = 0;
+    slowWindows = avg > 24 ? slowWindows + 1 : 0;
+    fastWindows = avg < 19 ? fastWindows + 1 : 0;
+    if (slowWindows >= 2 && stage < 2) {
+      stage++; slowWindows = fastWindows = 0; setEffectBudget();
+    } else if (fastWindows >= 4 && stage > 0) {
+      stage--; slowWindows = fastWindows = 0; setEffectBudget();
     }
   }
 
   let lastTear = 0;
-  function loop() {
+  let lastDraw = 0;
+  function loop(now = performance.now()) {
     raf = requestAnimationFrame(loop);
-    if (!onScreen()) return;
-    tune();
+    if (!onScreen()) { last = 0; frames = 0; acc = 0; warmUntil = now + 500; return; }
+    tune(now);
+    // A 120 Hz phone does not need twice the GPU work for the same 3D detail.
+    const drawElapsed = now - lastDraw, drawInterval = 1000 / 60;
+    if (drawElapsed < drawInterval - .5) return;
+    lastDraw = now - (Math.max(0, drawElapsed - drawInterval) % drawInterval);
     const tx = stripF.material.uniforms.uTearX.value;
     const dTear = tx - lastTear; lastTear = tx;
     if (dTear > .0005 && tx < 1.25) sfx?.('tear', Math.min(1, dTear * 28));
@@ -916,6 +943,9 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
     for (const m of allCardMats) m.uniforms.uTime.value = t;
     for (const m of packMats) m.uniforms.uTime.value = t;
     for (const m of fxMats) m.uniforms.uTime.value = t;
+    rays.visible = stage === 0 && rays.material.uniforms.uOpacity.value > .001;
+    packRays.visible = stage === 0 && packRays.material.uniforms.uOpacity.value > .001;
+    cardFx.forEach((effect) => { effect.visible = effect.material.uniforms.uOpacity.value > .001; });
     spotFx.position.set(L.spotX, L.spotY, L.spotZ - .2);
     spotFx.scale.setScalar(L.spotScale);
     pick();

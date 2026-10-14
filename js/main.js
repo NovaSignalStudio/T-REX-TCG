@@ -1,7 +1,7 @@
 import Lenis from '../vendor/lenis.js';
 import { PRODUCTS, HERO_CARDS, CATEGORIES, TYPES, byId, euro } from './data.js';
-import { audio } from './audio.js?v=24';
-import { initOpener, bestCode, ETB_IDS } from './opener.js?v=24';
+import { audio } from './audio.js?v=30';
+import { initOpener, bestCode, ETB_IDS } from './opener.js?v=30';
 
 const { gsap, ScrollTrigger, Flip, SplitText } = window;
 gsap.registerPlugin(ScrollTrigger, Flip, SplitText);
@@ -34,6 +34,11 @@ if (!REDUCE) {
 }
 const scrollToEl = (el) => {
   if (!el) return;
+  if (el.id === 'top') {
+    if (lenis) lenis.scrollTo(0, { duration: 1.6 });
+    else window.scrollTo({ top: 0, behavior: REDUCE ? 'auto' : 'smooth' });
+    return;
+  }
   const offset = el.id === 'contatti' ? -$('[data-bar]').offsetHeight - 24 : 0;
   if (lenis) lenis.scrollTo(el, { offset, duration: 1.6 });
   else el.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth' });
@@ -136,7 +141,7 @@ $('[data-thirty]').innerHTML = PRODUCTS.filter((p) => p.anniversary).map((p) => 
       <button class="tile__open" type="button" data-open="${p.id}" aria-label="${p.name}, ${p.line}. Apri la scheda"></button>
       <figure><img src="${p.img}" alt="" loading="lazy"></figure>
       <div class="thirty__row">
-        <div><h3>${p.line.split(',')[0]}</h3><p>${euro(p.price)}</p></div>
+        <div><h3>${p.name === '30th Celebration' ? p.line.split(',')[0] : p.name}</h3><p>${euro(p.price)}</p></div>
         <button class="tile__add" type="button" data-add="${p.id}">Aggiungi</button>
       </div>
     </div>
@@ -510,42 +515,41 @@ if (!REDUCE) {
     onSplit: (self) => gsap.from(self.lines, { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: .09, scrollTrigger: { trigger: el, start: 'top 86%', once: true } }),
   }));
 
-  // 30 anni: scorrimento orizzontale, le card si inclinano con la velocità dello scroll
-  const track = $('[data-thirty]');
-  const items = $$('.thirty__item', track);
-  const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-  const skew = gsap.quickTo(items, 'skewX', { duration: .5, ease: 'power3' });
-  let skewTimer;
-  gsap.timeline({
-    scrollTrigger: {
-      trigger: '.thirty', start: 'top top', end: () => `+=${dist() + window.innerHeight * .6}`,
-      pin: '.thirty__pin', scrub: 1, invalidateOnRefresh: true, refreshPriority: 1,
-      onUpdate: (self) => {
-        skew(gsap.utils.clamp(-6, 6, self.getVelocity() / -320));
-        clearTimeout(skewTimer); skewTimer = setTimeout(() => skew(0), 140);
+  // On phones and short screens, use a native swipe carousel: no scroll lock,
+  // skewed text or viewport-height cards. Desktop keeps its scroll scene.
+  gsap.matchMedia().add('(min-width: 721px) and (min-height: 701px)', () => {
+    const track = $('[data-thirty]');
+    const items = $$('.thirty__item', track);
+    const dist = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
+    gsap.to(track, {
+      x: () => -dist(), ease: 'none',
+      scrollTrigger: {
+        trigger: '.thirty', start: 'top top', end: () => `+=${dist() + window.innerHeight * .6}`,
+        pin: '.thirty__pin', scrub: .6, invalidateOnRefresh: true, refreshPriority: 1,
       },
-      onToggle: (self) => { if (!self.isActive) skew(0); },
-    },
-  })
-    .to(track, { x: () => -dist(), ease: 'none', duration: 1 }, 0);
-  gsap.from(items, {
-    y: 140, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: .08,
-    scrollTrigger: { trigger: '.thirty', start: 'top 60%', once: true },
+    });
+    gsap.from(items, {
+      y: 60, opacity: 0, duration: .8, ease: 'expo.out', stagger: .06, clearProps: 'transform,opacity',
+      scrollTrigger: { trigger: '.thirty', start: 'top 60%', once: true },
+    });
   });
 
   // nastro dei set: scorre da solo, accelera e cambia verso con lo scroll
   const setsTrack = $('[data-sets]');
-  let setsX = 0, setsBoost = 0, setsDir = -1;
+  let setsX = 0, setsBoost = 0, setsDir = -1, setsVisible = false, setsHalf = 0;
+  const measureSets = () => { setsHalf = setsTrack.scrollWidth / 2; };
+  new ResizeObserver(measureSets).observe(setsTrack);
+  document.fonts.ready.then(measureSets);
   ScrollTrigger.create({
     trigger: '.sets', start: 'top bottom', end: 'bottom top',
+    onToggle: (self) => { setsVisible = self.isActive; },
     onUpdate: (self) => { const v = self.getVelocity(); setsBoost = Math.min(14, Math.abs(v) / 120); if (Math.abs(v) > 40) setsDir = v > 0 ? -1 : 1; },
   });
   gsap.ticker.add((t, dt) => {
-    const half = setsTrack.scrollWidth / 2;
-    if (!half) return;
+    if (!setsVisible || document.hidden || !setsHalf) return;
     setsBoost *= .93;
     setsX += setsDir * (1.1 + setsBoost) * dt * .06;
-    setsX = gsap.utils.wrap(-half, 0, setsX);
+    setsX = gsap.utils.wrap(-setsHalf, 0, setsX);
     setsTrack.style.transform = `translate3d(${setsX}px,0,0)`;
   });
 
@@ -729,7 +733,7 @@ if (nightBanner) {
   const nightObserver = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     nightObserver.disconnect();
-    import('./night.js?v=24')
+    import('./night.js?v=30')
       .then(({ createNight }) => createNight(nightBanner))
       .catch((err) => console.warn('[T-REX TCG] Banner statico disponibile', err));
   }, { rootMargin: '450px' });
@@ -781,7 +785,7 @@ function introTitle() {
 }
 
 if (HAS3D) {
-  import('./hero3d.js?v=24')
+  import('./hero3d.js?v=30')
     .then(({ initHero }) => initHero({
       section: $('.hero'), canvas: $('.hero__gl'), cards: heroCards, gsap,
       onPick: (p) => openSheet(p), sfx: (k, i) => sound(k, i), onProgress: progress,

@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 
 // Original Gengar illustration and iris-light shader from the previous site.
-// The picture stays intact: only the painted red irises light up.
+// The original <img> supplies the full-resolution artwork. This transparent
+// canvas only paints the illuminated areas, so its FX budget cannot blur it.
 export async function createNight(parent) {
   const container = parent.querySelector('.night-landscape');
   const img = container.querySelector('img');
@@ -12,7 +13,7 @@ export async function createNight(parent) {
   canvas.setAttribute('aria-hidden', 'true');
   let renderer, texture;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: false, powerPreference: 'low-power' });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' });
     texture = await new THREE.TextureLoader().loadAsync(img.getAttribute('src'));
   } catch (err) {
     renderer?.dispose();
@@ -20,6 +21,7 @@ export async function createNight(parent) {
     return;
   }
   container.append(canvas);
+  renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.35));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -28,25 +30,24 @@ export async function createNight(parent) {
 
   const uniforms = {
     uImage: { value: texture }, uTime: { value: 0 }, uReaction: { value: 0 },
-    uMotion: { value: reduced ? 0 : 1 }, uPointer: { value: new THREE.Vector2() },
+    uMotion: { value: reduced ? 0 : 1 },
     uScale: { value: new THREE.Vector2(1, 1) }, uOrigin: { value: new THREE.Vector2() },
   };
   const material = new THREE.ShaderMaterial({
-    depthTest: false, depthWrite: false, uniforms,
+    transparent: true, depthTest: false, depthWrite: false, uniforms,
     vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`,
     fragmentShader: `
       precision highp float;
       varying vec2 vUv;
       uniform sampler2D uImage;
       uniform float uTime, uReaction, uMotion;
-      uniform vec2 uPointer, uScale, uOrigin;
+      uniform vec2 uScale, uOrigin;
       float oval(vec2 p, vec2 center, vec2 radius) {
         return 1. - smoothstep(.5, 1., length((p - center) / radius));
       }
       void main() {
         vec2 uv = vUv * uScale + uOrigin;
-        // Rigid drift from the original effect; no local deformation.
-        uv = (uv - .5) * .992 + .5 + uPointer * .003 * uMotion;
+        // Match the HTML image crop exactly; only the light moves, never the art.
         vec4 color = texture2D(uImage, clamp(uv, vec2(.001), vec2(.999)));
         float eyeArea = oval(uv, vec2(.738, .542), vec2(.122, .14));
         float red = clamp((color.r - max(color.b, color.g)) * 3.3, 0., 1.) * eyeArea;
@@ -54,14 +55,14 @@ export async function createNight(parent) {
         color.rgb += vec3(1., .075, .035) * red * wake;
         float lantern = oval(uv, vec2(.973, .693), vec2(.037, .088));
         color.rgb += vec3(.10, .048, .007) * lantern * (.5 + .5 * sin(uTime * 2.3)) * .12 * uMotion;
-        gl_FragColor = vec4(color.rgb, 1.);
+        float lightMask = max(smoothstep(.005, .12, red) * step(.001, wake), lantern * .12 * uMotion);
+        gl_FragColor = vec4(color.rgb, lightMask);
         #include <colorspace_fragment>
       }
     `,
   });
   const scene = new THREE.Scene(), camera = new THREE.Camera();
   scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
-  const pointer = new THREE.Vector2();
   let active = false, raf = 0, last = 0, reaction = 0, reactionUntil = 0, timer;
 
   function requestFrame() { if (!raf) raf = requestAnimationFrame(frame); }
@@ -74,7 +75,6 @@ export async function createNight(parent) {
     const pulsing = now < reactionUntil;
     const target = pulsing ? 1.5 : reduced ? 0 : reaction;
     uniforms.uTime.value = now / 1000;
-    uniforms.uPointer.value.lerp(pointer, damping);
     uniforms.uReaction.value = THREE.MathUtils.lerp(uniforms.uReaction.value, target, damping);
     uniforms.uMotion.value = reduced ? 0 : 1;
     renderer.render(scene, camera);
@@ -101,11 +101,10 @@ export async function createNight(parent) {
   parent.addEventListener('pointermove', (event) => {
     if (event.pointerType === 'touch') return;
     const r = parent.getBoundingClientRect();
-    pointer.set((event.clientX - r.left) / r.width - .5, -((event.clientY - r.top) / r.height - .5));
     reaction = event.clientX - r.left > r.width * .53 ? 1 : .25;
     requestFrame();
   });
-  parent.addEventListener('pointerleave', () => { pointer.set(0, 0); reaction = 0; requestFrame(); });
+  parent.addEventListener('pointerleave', () => { reaction = 0; requestFrame(); });
   button.addEventListener('click', () => {
     reactionUntil = performance.now() + 2200;
     parent.dataset.gengarState = 'awake';

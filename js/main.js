@@ -1,7 +1,7 @@
 import Lenis from '../vendor/lenis.js';
 import { PRODUCTS, HERO_CARDS, CATEGORIES, TYPES, byId, euro } from './data.js';
-import { audio } from './audio.js?v=30';
-import { initOpener, bestCode, ETB_IDS } from './opener.js?v=30';
+import { audio } from './audio.js?v=31';
+import { initOpener, bestCode, ETB_IDS } from './opener.js?v=31';
 
 const { gsap, ScrollTrigger, Flip, SplitText } = window;
 gsap.registerPlugin(ScrollTrigger, Flip, SplitText);
@@ -733,7 +733,7 @@ if (nightBanner) {
   const nightObserver = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     nightObserver.disconnect();
-    import('./night.js?v=30')
+    import('./night.js?v=31')
       .then(({ createNight }) => createNight(nightBanner))
       .catch((err) => console.warn('[T-REX TCG] Banner statico disponibile', err));
   }, { rootMargin: '450px' });
@@ -785,7 +785,7 @@ function introTitle() {
 }
 
 if (HAS3D) {
-  import('./hero3d.js?v=30')
+  import('./hero3d.js?v=31')
     .then(({ initHero }) => initHero({
       section: $('.hero'), canvas: $('.hero__gl'), cards: heroCards, gsap,
       onPick: (p) => openSheet(p), sfx: (k, i) => sound(k, i), onProgress: progress,

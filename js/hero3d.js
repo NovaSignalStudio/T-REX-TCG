@@ -647,10 +647,10 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
     // Reserve the actual space below the CTA, including the tilted foil edges.
     const introScale = Math.min(1, (freeP * k) / (PACK_H * 1.1));
     const chH = Math.max(...chapters.map((c) => c.offsetHeight));
-    const cTop = barH + 14, cBot = h - chH - 28 - 14;
+    const cTop = barH + 64, cBot = h - chH - 28 - 24;
     const freeC = Math.max(140, cBot - cTop);
-    const spotScale = Math.min(1.15, (freeC * k) / CARD_H);
-    const oTop = outro.offsetTop - 18, rTop = barH + 14;
+    const spotScale = Math.min(1.15, (freeC * k) / (CARD_H * 1.2));
+    const oTop = outro.offsetTop - 18, rTop = barH + 64;
     const freeO = Math.max(160, oTop - rTop);
     const rowScale = Math.min(.5, (freeO * k - .25) / (2 * CARD_H));
     const rowY = toY(rTop + freeO / 2);

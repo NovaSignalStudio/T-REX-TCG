@@ -1,4 +1,4 @@
-// T-REX TCG — sound design sintetizzato in tempo reale con Web Audio.
+// KOMMO — sound design sintetizzato in tempo reale con Web Audio.
 // Nessun file audio: ogni suono è generato al momento (carta che fruscia, strappo, carte che escono, lamina che brilla).
 
 let ctx = null, master = null, bus = null, padNodes = null, noiseBuf = null;

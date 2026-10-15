@@ -1,4 +1,4 @@
-// T-REX TCG — scena 3D dell'apertura della busta.
+// KOMMO — scena 3D dell'apertura della busta.
 // Una busta in foil generata via shader si strappa allo scroll, ne escono quattro carte
 // con effetto holo reale (foil, scintille, riflesso) che reagisce all'angolo di vista.
 import * as THREE from 'three';
@@ -311,11 +311,8 @@ function drawBrandMark(ctx, logo, x, y, size) {
   ctx.save();
   ctx.beginPath(); ctx.arc(x, y, size / 2, 0, Math.PI * 2); ctx.clip();
   ctx.fillStyle = '#fff'; ctx.fillRect(x - size / 2, y - size / 2, size, size);
-  if (logo) ctx.drawImage(logo, 80, 50, 400, 400, x - size / 2, y - size / 2, size, size);
-  else {
-    ctx.fillStyle = '#0a1a46'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `800 ${size * .25}px "Bricolage", sans-serif`; ctx.fillText('T-REX', x, y);
-  }
+  ctx.fillStyle = '#0a1a46'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `800 ${size * .20}px "Bricolage", sans-serif`; ctx.fillText('KOMMO', x, y, size * .84);
   ctx.restore();
 }
 
@@ -368,11 +365,11 @@ function drawPackFront(ctx, w, h, art = {}) {
   for (const c of [ctx, m]) text(c, (c) => {
     c.translate(cx, h * .8); c.rotate(-.05);
     c.font = '800 210px "Bricolage", sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-    const fitted = Math.min(210, 210 * w * .84 / c.measureText('T-REX TCG').width);
+    const fitted = Math.min(210, 210 * w * .84 / c.measureText('KOMMO').width);
     c.font = `800 ${fitted}px "Bricolage", sans-serif`;
     c.lineWidth = 28; c.strokeStyle = c === m ? '#fff' : '#0a1a46'; c.lineJoin = 'round';
-    c.strokeText('T-REX TCG', 0, 0);
-    c.fillStyle = c === m ? '#fff' : '#f4c430'; c.fillText('T-REX TCG', 0, 0);
+    c.strokeText('KOMMO', 0, 0);
+    c.fillStyle = c === m ? '#fff' : '#f4c430'; c.fillText('KOMMO', 0, 0);
   });
   ctx.textAlign = 'center';
   ctx.font = '600 44px "Geist", sans-serif'; ctx.fillStyle = '#dbe6ff';
@@ -434,7 +431,7 @@ function drawCardBack(ctx, w, h, logo) {
   ctx.restore();
   drawBrandMark(ctx, logo, cx, cy, 210);
   ctx.fillStyle = '#f4c430'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = '700 30px "Bricolage", sans-serif'; ctx.fillText('T-REX TCG', cx, h - 70);
+  ctx.font = '700 30px "Bricolage", sans-serif'; ctx.fillText('KOMMO', cx, h - 70);
 }
 
 // ————————————————————————————————————————— geometria della busta con rigonfiamento
@@ -483,7 +480,8 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
   const cardTex = await Promise.all(cards.map((c) => loadTex(c.img).then((t) => { done++; onProgress?.(.15 + .8 * done / cards.length); return t; })));
 
   const loadImg = (src) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
-  const [pChar, pGen, pPika, brandLogo] = await Promise.all(['assets/img/poke-charizard.webp', 'assets/img/poke-gengar.webp', 'assets/img/poke-pikachu.webp', 'assets/img/trex-logo.jpg?v=18'].map(loadImg));
+  const [pChar, pGen, pPika] = await Promise.all(['assets/img/poke-charizard.webp', 'assets/img/poke-gengar.webp', 'assets/img/poke-pikachu.webp'].map(loadImg));
+  const brandLogo = null;
   const packFrontTex = canvasTex(1024, 1640, (c, w, h) => drawPackFront(c, w, h, { charizard: pChar, gengar: pGen, pikachu: pPika, logo: brandLogo }));
   const packBackTex = canvasTex(512, 820, drawPackBack);
   const backTex = canvasTex(512, 716, (c, w, h) => drawCardBack(c, w, h, brandLogo));
@@ -953,7 +951,7 @@ export async function initHero({ section, canvas, cards, gsap, onPick, sfx, onRe
   }
   window.addEventListener('resize', () => { layout(); });
   loop();
-  if (/[?&]debug/.test(location.search)) window.__trexTCG = { tl, cardObjs, L, pack, packCanvas: packFrontTex.image, backCanvas: backTex.image };
+  if (/[?&]debug/.test(location.search)) window.__kommoTCG = { tl, cardObjs, L, pack, packCanvas: packFrontTex.image, backCanvas: backTex.image };
   onReady?.();
 
   return { tl, renderer, enter };

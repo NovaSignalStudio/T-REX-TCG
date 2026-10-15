@@ -1,6 +1,6 @@
-# T-REX TCG
+# KOMMO
 
-Demo del sito T-REX TCG: carte Pokémon, box e accessori.
+Demo del sito KOMMO: carte Pokémon, box e accessori.
 
 Sito statico pubblicato con GitHub Pages. Carrello, checkout e iscrizione alla newsletter sono dimostrativi.
 

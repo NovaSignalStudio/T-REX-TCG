@@ -1,4 +1,4 @@
-/* T-REX TCG — palette presa dalla carta stessa: blu del retro, giallo del bordo. */
+/* KOMMO — palette presa dalla carta stessa: blu del retro, giallo del bordo. */
 @font-face { font-family: 'Bricolage'; src: url(../assets/fonts/bricolage.woff2) format('woff2-variations'); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
 @font-face { font-family: 'Geist'; src: url(../assets/fonts/geist.woff2) format('woff2-variations'); font-weight: 100 900; font-display: swap; }
 
@@ -88,10 +88,10 @@ a { color: inherit; }
   clip-path: inset(0 0 0 0); transition: clip-path 1s cubic-bezier(.7, 0, .2, 1) .15s;
 }
 .is-loaded .loader { clip-path: inset(0 0 100% 0); }
-.loader__mark { position: relative; width: 84px; height: 84px; color: var(--yellow); }
-.loader__mark img { position: relative; width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 0 30px rgba(0, 221, 235, .25); }
+.loader__mark { position: relative; display: grid; place-items: center; min-height: 84px; color: var(--yellow); }
+.loader__mark .wordmark { position: relative; z-index: 1; font-size: clamp(48px, 12vw, 72px); }
 .loader__mark::before {
-  content: ''; position: absolute; inset: -40%; border-radius: 50%;
+  content: ''; position: absolute; inset: -25% 10%; border-radius: 50%;
   background: conic-gradient(from 0deg, transparent, rgba(244, 196, 48, .5), rgba(255, 0, 140, .3), rgba(0, 200, 255, .35), transparent 70%);
   filter: blur(14px); animation: spin 1.6s linear infinite;
 }
@@ -305,7 +305,7 @@ a { color: inherit; }
 .linklike { border: 0; background: none; padding: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; }
 .confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
 
-/* gettoni T-REX TCG: carte originali per gli slot senza prodotto */
+/* gettoni KOMMO: carte originali per gli slot senza prodotto */
 .tok {
   position: relative; width: 100%; height: 100%; border-radius: inherit; overflow: hidden; color: #fff;
   background: linear-gradient(160deg, color-mix(in srgb, var(--hue) 75%, #fff) 0%, var(--hue) 35%, color-mix(in srgb, var(--hue) 45%, #0a1a46) 100%);
@@ -895,3 +895,10 @@ dialog .cursor { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .thirty__swipe { display: none; }
 }
+
+/* KOMMO: logo testuale, nitido a ogni risoluzione. */
+.wordmark { font-family: var(--text); font-weight: 900; font-stretch: normal; letter-spacing: -.065em; line-height: 1; }
+.brand.wordmark { font-size: 28px; }
+.foot__name.wordmark { display: inline-block; font-size: 34px; color: #fff; text-decoration: none; }
+.foot__about { margin: 12px 0 0; line-height: 1.6; color: #e0e6f1; }
+@media (max-width: 600px) { .brand.wordmark { font-size: 24px; } }

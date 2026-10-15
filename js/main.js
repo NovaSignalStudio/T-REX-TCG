@@ -1,7 +1,7 @@
 import Lenis from '../vendor/lenis.js';
 import { PRODUCTS, HERO_CARDS, CATEGORIES, TYPES, byId, euro } from './data.js';
-import { audio } from './audio.js?v=31';
-import { initOpener, bestCode, ETB_IDS } from './opener.js?v=31';
+import { audio } from './audio.js?v=32';
+import { initOpener, bestCode, ETB_IDS } from './opener.js?v=32';
 
 const { gsap, ScrollTrigger, Flip, SplitText } = window;
 gsap.registerPlugin(ScrollTrigger, Flip, SplitText);
@@ -49,7 +49,7 @@ audio.init();
 const soundBtn = $('[data-sound]');
 const syncSound = () => soundBtn.setAttribute('aria-pressed', String(audio.enabled));
 function setSound(on, announce = false) {
-  audio.setEnabled(on); store.set('trex-tcg-v2-sound', on); syncSound();
+  audio.setEnabled(on); store.set('kommo-v2-sound', on); syncSound();
   if (on && announce) { audio.play('pop'); toast('Suoni attivi'); }
 }
 soundBtn.addEventListener('click', () => setSound(!audio.enabled, true));
@@ -262,11 +262,11 @@ grid.addEventListener('pointermove', (e) => {
   t.style.setProperty('--fy', `${((e.clientY - r.top) / r.height) * 100}%`);
 });
 // ————————————————————————————————————————— carrello
-let cart = store.get('trex-tcg-v2-cart', []);
+let cart = store.get('kommo-v2-cart', []);
 if (!Array.isArray(cart)) cart = [];
 cart = cart.filter((l) => l && byId[l.id] && Number.isInteger(l.qty) && l.qty > 0);
 const cartEl = $('[data-cart]');
-function saveCart() { store.set('trex-tcg-v2-cart', cart); renderCart(); }
+function saveCart() { store.set('kommo-v2-cart', cart); renderCart(); }
 function renderCart() {
   const count = cart.reduce((s, l) => s + l.qty, 0);
   const code = bestCode();
@@ -648,7 +648,7 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches && !REDUCE) {
 (() => {
   const abs = (u) => new URL(u, location.href).href;
   const data = {
-    '@context': 'https://schema.org', '@type': 'ItemList', name: 'Catalogo T-REX TCG',
+    '@context': 'https://schema.org', '@type': 'ItemList', name: 'Catalogo KOMMO',
     itemListElement: PRODUCTS.map((p, i) => ({
       '@type': 'ListItem', position: i + 1,
       item: {
@@ -733,9 +733,9 @@ if (nightBanner) {
   const nightObserver = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     nightObserver.disconnect();
-    import('./night.js?v=31')
+    import('./night.js?v=32')
       .then(({ createNight }) => createNight(nightBanner))
-      .catch((err) => console.warn('[T-REX TCG] Banner statico disponibile', err));
+      .catch((err) => console.warn('[KOMMO] Banner statico disponibile', err));
   }, { rootMargin: '450px' });
   nightObserver.observe(nightBanner);
 }
@@ -765,7 +765,7 @@ function loaded(h) {
   const gate = $('[data-gate]');
   loaderEl.classList.add('is-ready');
   gate.hidden = false;
-  const prev = store.get('trex-tcg-v2-sound', null);
+  const prev = store.get('kommo-v2-sound', null);
   gate.querySelector(prev === false ? '[data-enter="off"]' : '[data-enter="on"]').focus({ preventScroll: true });
   gate.addEventListener('click', (e) => {
     const b = e.target.closest('[data-enter]'); if (!b) return;
@@ -785,7 +785,7 @@ function introTitle() {
 }
 
 if (HAS3D) {
-  import('./hero3d.js?v=31')
+  import('./hero3d.js?v=32')
     .then(({ initHero }) => initHero({
       section: $('.hero'), canvas: $('.hero__gl'), cards: heroCards, gsap,
       onPick: (p) => openSheet(p), sfx: (k, i) => sound(k, i), onProgress: progress,
@@ -794,7 +794,7 @@ if (HAS3D) {
     }))
     .then((h) => loaded(h))
     .catch((err) => {
-      console.warn('[T-REX TCG] 3D non disponibile, uso la versione statica', err);
+      console.warn('[KOMMO] 3D non disponibile, uso la versione statica', err);
       root.classList.replace('has-3d', 'no-3d');
       loaded();
     });

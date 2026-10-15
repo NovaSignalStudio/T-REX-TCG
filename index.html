@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>T-REX TCG, carte Pokémon da collezione</title>
+  <title>KOMMO, carte Pokémon da collezione</title>
   <meta name="description" content="Box sigillati, carte singole verificate e accessori per collezionisti di carte Pokémon.">
   <meta name="theme-color" content="#0a1a46">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="T-REX TCG, carte Pokémon da collezione">
+  <meta property="og:title" content="KOMMO, carte Pokémon da collezione">
   <meta property="og:description" content="Box sigillati, carte singole verificate e accessori per collezionisti.">
   <meta property="og:image" content="assets/img/og.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="assets/favicon.svg?v=31" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon.svg?v=32" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/site.css?v=31">
+  <link rel="stylesheet" href="css/site.css?v=32">
   <script>
     // Decide prima del primo paint se usare la scena 3D.
     (function () {
@@ -30,7 +30,7 @@
   <script defer src="vendor/ScrollTrigger.min.js"></script>
   <script defer src="vendor/Flip.min.js"></script>
   <script defer src="vendor/SplitText.min.js"></script>
-  <script type="module" src="js/main.js?v=31"></script>
+  <script type="module" src="js/main.js?v=32"></script>
 </head>
 <body>
   <a class="skip" href="#catalogo">Vai al catalogo</a>
@@ -47,7 +47,7 @@
   </svg>
 
   <div class="loader" role="dialog" aria-label="Caricamento">
-    <div class="loader__mark"><img src="assets/trex-mark.svg?v=31" width="84" height="84" alt="T-Rex TCG"></div>
+    <div class="loader__mark"><span class="wordmark">KOMMO</span></div>
     <p class="loader__txt">Preparo la busta <span data-load-pct>0</span>%</p>
     <div class="loader__gate" data-gate hidden>
       <p>L’apertura ha un suono. Meglio con le cuffie.</p>
@@ -60,16 +60,13 @@
   </div>
 
   <header class="bar" data-bar>
-    <a class="brand" href="#top" aria-label="T-REX TCG, torna all’inizio">
-      <img class="brand__logo" src="assets/trex-mark.svg?v=31" width="40" height="40" alt="">
-      <span>T-REX TCG</span>
-    </a>
+    <a class="brand wordmark" href="#top" aria-label="KOMMO, torna all’inizio">KOMMO</a>
     <nav class="bar__nav" aria-label="Reparti">
       <a href="#catalogo" data-filter-link="sealed">Box e buste</a>
       <a href="#catalogo" data-filter-link="single">Carte singole</a>
       <a href="#catalogo" data-filter-link="acc">Accessori</a>
       <a href="#trenta">30 anni</a>
-      <a href="#contatti">Contatti</a>
+      <a href="#info">Info</a>
     </nav>
     <div class="bar__tools">
       <button class="icon-btn" type="button" data-sound aria-pressed="false" title="Suoni">
@@ -143,7 +140,7 @@
         <div class="opener__stage" data-stage>
           <div class="pk" data-pk data-cursor="Trascina la striscia">
             <div class="deck" data-deck role="button" tabindex="0" aria-label="Mazzo di carte"></div>
-            <div class="pk__body"><img src="assets/img/pack-front.webp?v=31" alt="Busta T-REX TCG"></div>
+            <div class="pk__body"><img src="assets/img/pack-front.webp?v=32" alt="Busta KOMMO"></div>
             <div class="pk__strip" data-strip aria-hidden="true"></div>
           </div>
           <ol class="pulls" data-pulls aria-label="Carte trovate"><li></li><li></li><li></li><li></li><li></li></ol>
@@ -162,7 +159,7 @@
       <div class="wrap">
         <div class="shop__head">
           <h2 class="display" id="shop-title" data-split>Catalogo</h2>
-          <p class="shop__note">Prezzi allineati ai riferimenti di mercato del 13 ottobre 2026. Catalogo dimostrativo.</p>
+          <p class="shop__note">Esplora carte, box e accessori. Catalogo dimostrativo: gli acquisti non sono attivi.</p>
         </div>
         <div class="shop__controls">
           <div class="tabs" role="tablist" aria-label="Filtra per reparto" data-tabs>
@@ -206,7 +203,7 @@
         <div class="thirty__intro">
           <div class="thirty__copy">
             <div class="thirty__edition">
-              <img class="thirty__logo" src="assets/img/pokemon-30-logo.png?v=31" width="203" height="150" alt="Pokémon, 30° anniversario" loading="lazy">
+              <img class="thirty__logo" src="assets/img/pokemon-30-logo.png?v=32" width="203" height="150" alt="Pokémon, 30° anniversario" loading="lazy">
               <p class="thirty__eyebrow">1996 — 2026<span>30° anniversario</span></p>
             </div>
             <h2 class="display" id="thirty-title">Trent’anni <span>di carte.</span></h2>
@@ -256,7 +253,7 @@
   <footer class="foot">
     <div class="night-campaign" id="notturno" data-gengar-state="idle">
       <div class="night-landscape">
-        <img src="assets/img/world-night.webp?v=31" alt="Gengar in un giardino notturno illuminato da lanterne" width="1672" height="941" loading="lazy">
+        <img src="assets/img/world-night.webp?v=32" alt="Gengar in un giardino notturno illuminato da lanterne" width="1672" height="941" loading="lazy">
       </div>
       <button class="night-wake" type="button" aria-label="Illumina gli occhi di Gengar" hidden></button>
     <div class="wrap foot__grid">
@@ -269,23 +266,19 @@
         </div>
         <p class="news__msg" data-news-msg aria-live="polite"></p>
       </form>
-      <div class="foot__info" id="contatti">
+      <div class="foot__info" id="info">
         <div class="foot__contact">
-          <h2>Contatti</h2>
-          <p class="foot__name"><img class="foot__logo" src="assets/trex-mark.svg?v=31" width="32" height="32" alt="" loading="lazy">T-Rex TCG</p>
-          <a href="mailto:trextcgsrl@gmail.com">trextcgsrl@gmail.com</a>
-          <address><span class="foot__label">Sede</span>Via della Bufalotta 29<br>00139 Roma (RM), Italia</address>
-          <a class="foot__map" href="https://www.google.com/maps/search/?api=1&amp;query=Via+della+Bufalotta+29,+00139+Roma,+Italia" target="_blank" rel="noopener">Indicazioni <span aria-hidden="true">↗</span></a>
+          <a class="foot__name wordmark" href="#top" aria-label="KOMMO, torna all’inizio">KOMMO</a>
+          <p class="foot__about">Carte Pokémon,<br>box e accessori.</p>
         </div>
         <nav class="foot__links" aria-label="Link utili">
           <a href="#catalogo">Catalogo</a>
           <a href="#trenta">30th Celebration</a>
-          <a href="https://www.t-rextcg.com/pages/contact" target="_blank" rel="noopener">Contatti sul sito ufficiale <span aria-hidden="true">↗</span></a>
           <a href="#top">Torna all’inizio</a>
         </nav>
       </div>
     </div>
-        <p class="foot__legal">Sito dimostrativo. Pokémon e i nomi correlati sono marchi di Nintendo, Creatures e GAME FREAK. T-REX TCG è un rivenditore indipendente, non affiliato.</p>
+        <p class="foot__legal">Sito dimostrativo. Pokémon e i nomi correlati sono marchi di Nintendo, Creatures e GAME FREAK. KOMMO è un progetto dimostrativo non affiliato.</p>
     </div>
   </footer>
 

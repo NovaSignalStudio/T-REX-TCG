@@ -1,4 +1,4 @@
-// T-REX TCG — la busta del giorno.
+// KOMMO — la busta del giorno.
 // Si apre a mano (trascinando la striscia) o col bottone; escono 5 carte da girare una per una.
 // Ogni carta holo trovata porta un codice sconto sulle Elite Trainer Box: più è rara, più vale (1–10%).
 import { byId, TYPES, euro } from './data.js';
@@ -26,12 +26,12 @@ const store = {
 const today = () => new Date().toISOString().slice(0, 10);
 const pickW = (table) => { let r = Math.random() * table.reduce((s, [, w]) => s + w, 0); for (const [k, w] of table) { if ((r -= w) < 0) return k; } return table[0][0]; };
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
-const codeFor = (pct) => `TREX-${pct}-${Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('')}`;
+const codeFor = (pct) => `KOMMO-${pct}-${Array.from({ length: 4 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('')}`;
 
 // ——— portafoglio codici (validi 7 giorni, nel carrello si usa il migliore)
 export function walletCodes() {
   const now = Date.now();
-  return store.get('trex-tcg-v2-codes', []).filter((c) => c && c.exp > now);
+  return store.get('kommo-v2-codes', []).filter((c) => c && c.exp > now);
 }
 export function bestCode() {
   return walletCodes().sort((a, b) => b.pct - a.pct)[0] || null;
@@ -50,7 +50,7 @@ function rollPack() {
   });
 }
 
-// ——— carta gettone T-REX TCG (disegno originale) per le carte senza prodotto
+// ——— carta gettone KOMMO (disegno originale) per le carte senza prodotto
 function tokenHTML(c) {
   const type = TYPES[c.type];
   const t = TIERS[c.tier];
@@ -58,7 +58,7 @@ function tokenHTML(c) {
   return `<div class="tok tok--${c.tier}" style="--hue:${type.hue}">
     <div class="tok__head"><b>${type.label}</b><span>${sym}</span></div>
     <div class="tok__art"><svg aria-hidden="true"><use href="#t-${c.type}"/></svg></div>
-    <div class="tok__foot"><span>Collezione T-REX TCG</span><span>${t ? t.label : 'Comune'}</span></div>
+    <div class="tok__foot"><span>Collezione KOMMO</span><span>${t ? t.label : 'Comune'}</span></div>
   </div>`;
 }
 function faceHTML(c) {
@@ -79,7 +79,7 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
   let state = 'idle', pack = null, revealed = 0, tearX = 0;
 
   // striscia divisa in segmenti verticali: si staccano uno dopo l'altro
-  segWrap.innerHTML = Array.from({ length: N }, (_, k) => `<span class="pk__seg" style="--k:${k};--n:${N}"><img src="assets/img/pack-front.webp?v=18" alt=""></span>`).join('');
+  segWrap.innerHTML = Array.from({ length: N }, (_, k) => `<span class="pk__seg" style="--k:${k};--n:${N}"><img src="assets/img/pack-front.webp?v=32" alt=""></span>`).join('');
   const segs = [...segWrap.children];
   // bordo seghettato del corpo della busta
   const zig = Array.from({ length: 31 }, (_, i) => `${(i / 30) * 100}% ${11.5 + (i % 2 ? 1.1 : 0) + Math.sin(i * 2.3) * .4}%`).join(',');
@@ -106,7 +106,7 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
   }
 
   function canPlay() {
-    return store.get('trex-tcg-v2-pack-day', '') !== today();
+    return store.get('kommo-v2-pack-day', '') !== today();
   }
 
   function tear(done = true) {
@@ -125,9 +125,9 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
     state = 'opening';
     sound('tearPop');
     pack = rollPack();
-    store.set('trex-tcg-v2-pack-day', today());
+    store.set('kommo-v2-pack-day', today());
     btn.hidden = true; hint.hidden = true;
-    deck.innerHTML = pack.map((c, i) => ({ c, i })).reverse().map(({ c, i }) => `<div class="pull" style="--i:${i}" data-k="${i}"><div class="pull__inner"><div class="pull__back"><img src="assets/img/card-back.webp?v=18" alt=""></div><div class="pull__face">${faceHTML(c)}</div></div></div>`).join('');
+    deck.innerHTML = pack.map((c, i) => ({ c, i })).reverse().map(({ c, i }) => `<div class="pull" style="--i:${i}" data-k="${i}"><div class="pull__inner"><div class="pull__back"><img src="assets/img/card-back.webp?v=32" alt=""></div><div class="pull__face">${faceHTML(c)}</div></div></div>`).join('');
     const cards = [...deck.children];
     pk.classList.add('is-open'); pk.dataset.cursor = 'Gira la carta';
     const tl = gsap.timeline({ onComplete: () => { state = 'reveal'; deck.classList.add('is-ready'); deck.setAttribute('aria-label', 'Gira la prossima carta'); deck.focus({ preventScroll: true }); } });
@@ -171,9 +171,9 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
       sound('rarity', tier.rank);
       if (tier.rank >= 3) confetti(TYPES[c.type].hue);
       const exp = Date.now() + CODE_DAYS * 864e5;
-      const codes = store.get('trex-tcg-v2-codes', []).filter((x) => x && x.exp > Date.now());
+      const codes = store.get('kommo-v2-codes', []).filter((x) => x && x.exp > Date.now());
       codes.push({ code: c.code, pct: tier.pct, card: `${nameOf(c)}, ${tier.label}`, exp, product: c.product || null });
-      store.set('trex-tcg-v2-codes', codes);
+      store.set('kommo-v2-codes', codes);
       renderWallet(); onCodes?.();
     }
     if (last) { finish(); return; }
@@ -209,7 +209,7 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
     result.querySelector('[data-go-etb]').addEventListener('click', () => goEtb?.());
     result.querySelector('[data-see-card]')?.addEventListener('click', () => openSheet?.(byId[best.product]));
     result.querySelector('[data-share]').addEventListener('click', () => share(best));
-    result.querySelector('[data-replay]').addEventListener('click', () => { store.set('trex-tcg-v2-pack-day', ''); reset(); });
+    result.querySelector('[data-replay]').addEventListener('click', () => { store.set('kommo-v2-pack-day', ''); reset(); });
   }
 
   function reset() {
@@ -273,8 +273,8 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
     bg.addColorStop(0, TYPES[c.type].hue); bg.addColorStop(.45, '#1d47a6'); bg.addColorStop(1, '#0a1a46');
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
     g.fillStyle = '#f4c430'; g.font = '800 64px Bricolage, sans-serif'; g.textAlign = 'center';
-    g.fillText('T-REX TCG', W / 2, 120);
-    const img = new Image(); img.src = c.product ? byId[c.product].img : 'assets/img/card-back.webp?v=18';
+    g.fillText('KOMMO', W / 2, 120);
+    const img = new Image(); img.src = c.product ? byId[c.product].img : 'assets/img/card-back.webp?v=32';
     await img.decode().catch(() => {});
     const cw = 560, ch = cw * 1.397;
     g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 60; g.shadowOffsetY = 30;
@@ -284,11 +284,11 @@ export function initOpener({ root, gsap, sound, onCodes, openSheet, goEtb, reduc
     g.fillStyle = '#dbe6ff'; g.font = '600 40px Geist, sans-serif';
     g.fillText(`${t.label} trovata nella busta del giorno · −${t.pct}%`, W / 2, 190 + ch + 175);
     const blob = await new Promise((res) => cvs.toBlob(res, 'image/png'));
-    const file = new File([blob], 'trex-tcg-busta.png', { type: 'image/png' });
+    const file = new File([blob], 'kommo-busta.png', { type: 'image/png' });
     if (navigator.canShare?.({ files: [file] })) {
-      navigator.share({ files: [file], title: 'T-REX TCG', text: `Ho trovato ${nameOf(c)} nella busta del giorno di T-REX TCG` }).catch(() => {});
+      navigator.share({ files: [file], title: 'KOMMO', text: `Ho trovato ${nameOf(c)} nella busta del giorno di KOMMO` }).catch(() => {});
     } else {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'trex-tcg-busta.png'; a.click();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'kommo-busta.png'; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     }
   }
